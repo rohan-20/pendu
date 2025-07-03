@@ -1,5 +1,6 @@
 package com.example.todu.ui
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.background
@@ -31,13 +32,25 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.scale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick: (Int) -> Unit) {
     val tasks by viewModel.allTasks.collectAsState(initial = emptyList())
+    val isHappyState by viewModel.isHappyState.collectAsState(initial = false)
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val infiniteTransition = rememberInfiniteTransition(label = "logo_animation")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (isHappyState) 1.1f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "logo_scale"
+    )
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -63,6 +76,7 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    .scale(if (isHappyState) scale else 1f)
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

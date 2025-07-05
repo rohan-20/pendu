@@ -19,13 +19,13 @@ private val DarkColorScheme = darkColorScheme(
     primary = AccentBlueGrey,
     secondary = AccentMutedTeal,
     tertiary = AccentSoftLavender,
-    background = BackgroundLight,
-    surface = SurfaceWhite,
-    onPrimary = TextDarkCharcoal,
-    onSecondary = TextDarkCharcoal,
-    onTertiary = TextDarkCharcoal,
-    onBackground = TextDarkCharcoal,
-    onSurface = TextDarkCharcoal
+    background = DarkBackground,
+    surface = DarkSurface,
+    onPrimary = DarkOnPrimary,
+    onSecondary = DarkOnSecondary,
+    onTertiary = DarkOnTertiary,
+    onBackground = DarkOnBackground,
+    onSurface = DarkOnSurface
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -43,13 +43,16 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun ToduTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colorScheme = LightColorScheme
+    val colorScheme = when {
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

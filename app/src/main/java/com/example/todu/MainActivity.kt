@@ -45,6 +45,8 @@ class MainActivity : ComponentActivity() {
                     BackHandler {
                         if (navController.currentBackStackEntry?.destination?.route != "tasks_list") {
                             navController.popBackStack()
+                        } else {
+                            finish()
                         }
                     }
 

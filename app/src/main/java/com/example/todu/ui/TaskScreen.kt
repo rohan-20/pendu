@@ -30,6 +30,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.ui.graphics.Color
+import com.example.todu.ui.theme.PriorityHigh
+import com.example.todu.ui.theme.PriorityLow
+import com.example.todu.ui.theme.PriorityMedium
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.foundation.shape.CircleShape
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,13 +46,15 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTaskClick,
                 shape = CircleShape,
-                containerColor = Color(0xFFEDE8D0)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Icon(Icons.Filled.Add, "Add new task")
             }
@@ -64,6 +73,9 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick
                     .fillMaxWidth()
                     .padding(16.dp)
             )
+
+            
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -131,6 +143,7 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick
 fun TaskItem(task: Task, onTaskCheckChanged: (Task) -> Unit, onTaskClick: (Int) -> Unit) {
     val cardColor = if (task.isCompleted) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
     val textColor = if (task.isCompleted) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     Card(
         modifier = Modifier
@@ -154,12 +167,38 @@ fun TaskItem(task: Task, onTaskCheckChanged: (Task) -> Unit, onTaskClick: (Int) 
                 )
             )
             Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
+                        color = textColor
+                    ),
+                )
+                task.dueDate?.let {
+                    Text(
+                        text = "Due: ${sdf.format(Date(it))}",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = textColor
+                        )
+                    )
+                }
+            }
             Text(
-                text = task.title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
-                    color = textColor
-                ),
+                text = when (task.priority) {
+                    0 -> "Low"
+                    1 -> "Med"
+                    2 -> "High"
+                    else -> ""
+                },
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = when (task.priority) {
+                        0 -> PriorityLow
+                        1 -> PriorityMedium
+                        2 -> PriorityHigh
+                        else -> textColor
+                    }
+                )
             )
         }
     }

@@ -18,6 +18,7 @@ import java.util.*
 @Composable
 fun AddTaskScreen(
     viewModel: TaskViewModel,
+    taskType: String,
     onBack: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
@@ -60,7 +61,7 @@ fun AddTaskScreen(
                                 title = title,
                                 description = description,
                                 priority = priority,
-                                dueDate = dueDate
+                                taskType = taskType
                             )
                         )
                         onBack()

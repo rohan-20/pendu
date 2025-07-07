@@ -11,5 +11,6 @@ data class Task(
     val dueDate: Long? = null,
     val priority: Int = 0, // 0: Low, 1: Medium, 2: High
     val tags: String? = null, // Comma-separated tags
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val taskType: String
 )

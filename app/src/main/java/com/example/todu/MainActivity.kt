@@ -68,12 +68,17 @@ class MainActivity : ComponentActivity() {
                             composable("tasks_list") {
                                 TaskScreen(
                                     viewModel = taskViewModel,
-                                    onAddTaskClick = { navController.navigate("add_task") },
+                                    onAddTaskClick = { taskType -> navController.navigate("add_task/$taskType") },
                                     onTaskClick = { taskId -> navController.navigate("edit_task/$taskId") }
                                 )
                             }
-                            composable("add_task") {
-                                AddTaskScreen(taskViewModel) {
+                            composable(
+                                route = "add_task/{taskType}",
+                                arguments = listOf(navArgument("taskType") { type = NavType.StringType })
+                            ) {
+                                backStackEntry ->
+                                val taskType = backStackEntry.arguments?.getString("taskType") ?: "Daily"
+                                AddTaskScreen(taskViewModel, taskType) {
                                     navController.popBackStack()
                                 }
                             }

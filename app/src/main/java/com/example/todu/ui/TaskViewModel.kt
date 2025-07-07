@@ -3,30 +3,38 @@ package com.example.todu.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.todu.data.ITaskRepository
 import com.example.todu.data.Task
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-
-import com.example.todu.data.ITaskRepository
 
 class TaskViewModel(private val repository: ITaskRepository) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val allTasks: Flow<List<Task>> = combine(
-        repository.allTasks,
+    private val _selectedTab = MutableStateFlow("Daily")
+    val selectedTab: StateFlow<String> = _selectedTab.asStateFlow()
+
+    val tasks: Flow<List<Task>> = combine(
+        selectedTab.flatMapLatest { tab ->
+            repository.getTasksByType(tab)
+        },
         _searchQuery
     ) { tasks, searchQuery ->
-        tasks
-            .filter { task ->
-                task.title.contains(searchQuery, ignoreCase = true) ||
-                        (task.description?.contains(searchQuery, ignoreCase = true) ?: false)
-            }
+        tasks.filter { task ->
+            task.title.contains(searchQuery, ignoreCase = true) ||
+                    (task.description?.contains(searchQuery, ignoreCase = true) ?: false)
+        }
+    }
+
+    fun selectTab(tab: String) {
+        _selectedTab.value = tab
     }
 
     fun setSearchQuery(query: String) {

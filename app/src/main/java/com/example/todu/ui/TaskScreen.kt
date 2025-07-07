@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -39,20 +40,47 @@ import java.util.Locale
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.foundation.shape.CircleShape
 
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+
+import androidx.compose.ui.graphics.vector.ImageVector
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick: (Int) -> Unit) {
-    val tasks by viewModel.allTasks.collectAsState(initial = emptyList())
+fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: (String) -> Unit, onTaskClick: (Int) -> Unit) {
+    val tasks by viewModel.tasks.collectAsState(initial = emptyList())
+    val selectedTab by viewModel.selectedTab.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    
+    val tabs = listOf("Daily", "Whenever")
 
     Scaffold(
+        bottomBar = {
+            BottomAppBar {
+                tabs.forEach { tab ->
+                    NavigationBarItem(
+                        icon = { Icon(if (tab == "Daily") Icons.Default.Done else Icons.Default.Edit, contentDescription = tab) },
+                        label = { Text(tab) },
+                        selected = selectedTab == tab,
+                        onClick = { viewModel.selectTab(tab) }
+                    )
+                }
+            }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddTaskClick,
+                onClick = { onAddTaskClick(selectedTab) },
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ) {
@@ -73,8 +101,6 @@ fun TaskScreen(viewModel: TaskViewModel, onAddTaskClick: () -> Unit, onTaskClick
                     .fillMaxWidth()
                     .padding(16.dp)
             )
-
-            
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

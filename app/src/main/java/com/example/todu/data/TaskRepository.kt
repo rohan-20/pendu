@@ -3,7 +3,7 @@ package com.example.todu.data
 import kotlinx.coroutines.flow.Flow
 
 class TaskRepository(private val taskDao: TaskDao) : ITaskRepository {
-    override val allTasks: Flow<List<Task>> = taskDao.getAllTasks()
+    override fun getTasksByType(taskType: String): Flow<List<Task>> = taskDao.getTasksByType(taskType)
 
     override fun getTaskById(id: Int): Flow<Task?> {
         return taskDao.getTaskById(id)
